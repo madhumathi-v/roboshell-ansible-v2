@@ -1,0 +1,49 @@
+- name: Add Application User
+  ansible.builtin.user:
+    name: appuser
+    system: true
+    shell: /bin/false
+    create_home: false
+
+- name: Copy SystemD Service File
+  ansible.builtin.copy:
+    src: payments.service
+    dest: /etc/systemd/system/payment.service
+
+- name: Install Python3 and pip3
+  ansible.builtin.dnf:
+    name: 
+      - python3
+      - python3-pip
+    state: latest
+
+- name: Remove Directory
+  ansible.builtin.file:
+    path: /app
+    state: absent
+
+- name: Create Directory
+  ansible.builtin.file:
+    path: /app
+    state: directory
+    owner: appuser
+    group: appuser
+    mode: 'o-wxr'
+
+- name: Unzip the payment.zip file
+  ansible.builtin.unarchive:
+    src: 'https://raw.githubusercontent.com/raghudevopsb89/roboshop-microservices/main/artifacts/payment.zip'
+    dest: /app
+    remote_src: yes
+
+- name: Install Python dependencies
+  ansible.builtin.shell: pip3 install -r requirements.txt
+  args:
+    chdir: /app
+
+- name: restart the payment service, daemon-reload and enable the service
+  ansible.builtin.systemd:
+    name: payment
+    state: restarted
+    enabled: true
+    daemon_reload: true

@@ -1,0 +1,5 @@
+- name: Setup Payment Module
+  hosts: all
+  become: true
+  roles:
+    - payment

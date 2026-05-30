@@ -1,0 +1,50 @@
+- name: Install nginx
+  ansible.builtin.dnf:
+    name: nginx
+    state: latest
+
+- name: Copy files
+  ansible.builtin.copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+
+- name: Setup Nodejs Repository
+  ansible.builtin.shell: curl -sL https://rpm.nodesource.com/setup_22.x | bash -
+
+- name: install nodejs
+  ansible.builtin.dnf:
+    name: nodejs
+    state: latest
+    disable_gpg_check: true
+
+- name: Revome directory
+  ansible.builtin.file:
+    path: /tmp/frontend
+    state: absent
+
+- name: Create directory
+  ansible.builtin.file:
+      path: /tmp/frontend
+      state: directory
+
+- name: Unzip the frontend.zip file
+  ansible.builtin.unarchive:
+    src: 'https://raw.githubusercontent.com/raghudevopsb89/roboshop-microservices/main/artifacts/frontend.zip'
+    dest: /tmp/frontend
+    remote_src: yes
+- name: Install npm dependencies
+  ansible.builtin.shell: |
+    npm install
+    npm run build
+    npm run export
+    rm -rf /usr/share/nginx/html/*
+    cp -r /tmp/frontend/out/* /usr/share/nginx/html/
+  args:
+    chdir: /tmp/frontend
+
+- name: Start nginx
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: restarted
+    enabled: true
+  

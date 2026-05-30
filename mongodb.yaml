@@ -1,0 +1,5 @@
+- name: Setup MongoDB Component
+  hosts: all
+  become: true
+  roles:
+    - mongodb

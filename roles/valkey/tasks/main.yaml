@@ -1,0 +1,22 @@
+- name: Install Valkey
+  ansible.builtin.dnf:
+    name: valkey
+    state: present
+
+- name: replace valkey bind address
+  ansible.builtin.replace:
+    path: /etc/valkey/valkey.conf
+    regexp: 'bind: 127.0.0.1'
+    replace: 'bind: "0.0.0.0"'
+
+- name: Replace Protected Mode
+  ansible.builtin.replace:
+    path: /etc/valkey/valkey.conf
+    regexp: 'protected_mode: true'
+    replace: 'protected_mode: false'
+
+- name: Restart Valkey and enable it to start on boot
+  systemd:
+    name: valkey
+    state: restarted
+    enabled: yes

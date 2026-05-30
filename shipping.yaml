@@ -1,0 +1,5 @@
+- name: Setup Shipping Module
+  hosts: all
+  become: true
+  roles:
+    - shipping

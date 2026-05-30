@@ -1,0 +1,6 @@
+---
+- name: Setup Order Service
+  hosts: all
+  become: true
+  roles:
+    - orders

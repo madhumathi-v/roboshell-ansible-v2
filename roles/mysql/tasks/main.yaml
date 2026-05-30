@@ -1,0 +1,18 @@
+- name: Install MySQL
+  ansible.builtin.dnf:
+    name: mysql8.4-server
+    state: latest
+
+- name: Enable and start MySQL service
+  ansible.builtin.systemd_service:
+    name: mysqld
+    state: started
+    enabled: true
+
+- name: Configure MySQL Root User
+  ansible.builtin.shell: |
+    mysql -u root -pRoboShop@1 -e "
+    CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY 'RoboShop@1';
+    GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+    FLUSH PRIVILEGES;
+    "

@@ -1,0 +1,50 @@
+- name: Add Application User
+  ansible.builtin.user:
+    name: appuser
+    system: true
+    shell: /bin/false
+    create_home: false
+
+- name: Copy SystemD Service File
+  ansible.builtin.copy:
+    src: cart.service
+    dest: /etc/systemd/system/cart.service
+
+- name: Setup NodeJS Repository
+  ansible.builtin.shell: curl -sL https://rpm.nodesource.com/setup_22.x | bash -
+
+- name: Install NodeJS
+  ansible.builtin.dnf:
+    name: nodejs
+    state: latest
+
+- name: Remove Directory
+  ansible.builtin.file:
+    path: /app
+    state: absent
+
+- name: Create Directory
+  ansible.builtin.file:
+    path: /app
+    state: directory
+    owner: appuser
+    group: appuser
+    mode: 'o-wxr'
+
+- name: Unzip the cart.zip file
+  ansible.builtin.unarchive:
+    src: 'https://raw.githubusercontent.com/raghudevopsb89/roboshop-microservices/main/artifacts/cart.zip'
+    dest: /app
+    remote_src: yes
+
+- name: Install NodeJS dependencies
+  ansible.builtin.shell: npm install
+  args:
+    chdir: /app
+
+- name: restart the cart service, daemon-reload and enable the service
+  ansible.builtin.systemd:
+    name: cart
+    state: restarted
+    enabled: true
+    daemon_reload: true  

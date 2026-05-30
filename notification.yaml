@@ -1,0 +1,5 @@
+- name: Setup Notification
+  hosts: all
+  become: true
+  roles:
+    - notification

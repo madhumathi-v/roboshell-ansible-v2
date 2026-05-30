@@ -1,0 +1,5 @@
+- name: Setup ratings Service
+  hosts: all
+  become: yes
+  roles:
+    - rating

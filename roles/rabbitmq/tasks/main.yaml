@@ -1,0 +1,28 @@
+- name: Copy RabbitMQ SystemD Service File
+  ansible.builtin.copy:
+    src: rabbitmq.repo
+    dest: /etc/yum.repos.d/rabbitmq.repo
+
+- name: Install RabbitMQ and Erlang
+  ansible.builtin.dnf:
+    name: 
+      - rabbitmq-server
+      - erlang
+    state: latest
+
+- name: restart RabbitMQ service
+  ansible.builtin.systemd:
+    name: rabbitmq-server
+    state: restarted
+    enabled: true
+        
+- name: Create app user in rabbitmq
+  ansible.builtin.rabbitmq_user:
+    user: roboshop
+    password: 'RoboShop@1'
+    vhost: /
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    state: present
+    tags: administrator

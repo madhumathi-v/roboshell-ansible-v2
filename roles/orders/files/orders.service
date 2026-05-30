@@ -1,0 +1,22 @@
+[Unit]
+Description=RoboShop Orders Service
+After=network.target
+
+[Service]
+Type=simple
+User=appuser
+WorkingDirectory=/app
+ExecStart=java -jar /app/orders.jar
+Restart=on-failure
+RestartSec=10
+SyslogIdentifier=orders
+
+Environment=MONGO_URL=mongodb://10.0.0.11:27017/orders
+Environment=AMQP_HOST=10.0.0.16
+Environment=AMQP_USER=roboshop
+Environment=AMQP_PASS=RoboShop@1
+Environment=SHIPPING_URL=http://10.0.0.9:8004
+Environment=PORT=8007
+
+[Install]
+WantedBy=multi-user.target

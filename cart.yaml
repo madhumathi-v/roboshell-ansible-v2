@@ -1,0 +1,5 @@
+- name: Setup Cart Module
+  hosts: all
+  become: yes
+  roles:
+    - cart
