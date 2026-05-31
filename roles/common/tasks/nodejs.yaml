@@ -1,0 +1,19 @@
+- name: Load Pre-requisites
+  ansible.builtin.include_tasks: pre-reqs.yaml
+
+- name: Setup NodeJS Repository
+  ansible.builtin.shell: curl -sL https://rpm.nodesource.com/setup_22.x | bash -
+
+- name: Install NodeJS
+  ansible.builtin.dnf:
+    name: nodejs
+    state: latest
+
+
+- name: Install NodeJS dependencies
+  ansible.builtin.shell: npm install
+  args:
+    chdir: /app
+    
+- name: Load SystemD Service File
+  ansible.builtin.include_tasks: systemd.yaml

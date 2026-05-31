@@ -1,60 +1,8 @@
-- name: Create application user
-  ansible.builtin.user:
-    name: appuser
-    system: true
-    shell: /bin/false
-    create_home: false
+- name: Import Python from common role
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: python
 
-- name: Copy SystemD Service File
-  ansible.builtin.copy:
-    src: ./ratings.service
-    dest: /etc/systemd/system/ratings.service
+- name: Load Mysql Schema
+  ansible.builtin.include_tasks: mysql.yaml
 
-- name: Install python3 , pyhton3-pip and mysql8.4
-  ansible.builtin.dnf:
-    name: 
-      - python3
-      - python3-pip
-      - mysql8.4
-    state: latest
-
-- name: Remove Directory
-  ansible.builtin.file:
-    path: /app
-    state: absent
-
-- name: Create Directory
-  ansible.builtin.file:
-    path: /app
-    state: directory
-    owner: appuser
-    group: appuser
-    mode: 'o-wxr'
-
-- name: unzip the application content
-  ansible.builtin.unarchive:
-    src: https://raw.githubusercontent.com/raghudevopsb89/roboshop-microservices/main/artifacts/ratings.zip
-    dest: /app
-    remote_src: yes
-  
-- name: Run Mysql shell Commands
-  ansible.builtin.shell: |
-    mysql -h 10.0.0.5 -u root -pRoboShop@1 < db/schema.sql
-    mysql -h 10.0.0.5 -u root -pRoboShop@1 < db/app-user.sql
-  args:
-    chdir: /app
-
-- name: Deploy Application
-  ansible.builtin.shell: |
-    pip3 install -r requirements.txt
-  args:
-    chdir: /app
-
-- name: restart ratings service ,enable and daemon-reload
-  ansible.builtin.systemd:
-    name: ratings
-    state: restarted
-    enabled: true
-    daemon_reload: true
-
-    
